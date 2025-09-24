@@ -1,9 +1,9 @@
-import { AntDesign, Ionicons } from "@expo/vector-icons"; // ❤️ icon
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
 import {
-  addDoc,
   collection,
+  addDoc,
   deleteDoc,
   doc,
   getDoc,
@@ -29,14 +29,11 @@ import {
   State,
 } from "react-native-gesture-handler";
 import { auth, db } from "../firebaseConfig";
-
-// ✅ modern way: useFonts instead of AppLoading
 import { useFonts } from "expo-font";
 
 const { width } = Dimensions.get("window");
 
 export default function Quotes() {
-  // Load fonts
   const [fontsLoaded] = useFonts({
     Cardo: require("../assets/fonts/Cardo-Regular.ttf"),
   });
@@ -53,7 +50,7 @@ export default function Quotes() {
   const [quotes, setQuotes] = useState(builtInQuotes);
   const [input, setInput] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [hearted, setHearted] = useState({}); // ❤️ state
+  const [hearted, setHearted] = useState({});
   const router = useRouter();
 
   useEffect(() => {
@@ -64,11 +61,13 @@ export default function Quotes() {
         collection(db, "quotes"),
         where("userId", "==", auth.currentUser.uid)
       );
-      const querySnapshot = await getDocs(q);
+      const snapshot = await getDocs(q);
       const qList = [];
-      querySnapshot.forEach((doc) => qList.push(doc.data().text));
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        qList.push(data && data.text ? String(data.text) : "No text");
+      });
       setUserQuotes(qList);
-
       setQuotes([...builtInQuotes, ...qList]);
     };
     fetchQuotes();
@@ -141,9 +140,8 @@ export default function Quotes() {
     }
   };
 
-  // ✅ Wait until fonts are loaded
   if (!fontsLoaded) {
-    return <View style={{ flex: 1, backgroundColor: "#0D1B2A" }} />;
+    return <View style={{ flex: 1, backgroundColor: "#F0F4F8" }} />;
   }
 
   return (
@@ -152,17 +150,18 @@ export default function Quotes() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        {/* 🔹 HEADER */}
+        {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.push("/favorites")}>
-            <AntDesign name="heart" size={28} color="#00C9A7" />
+            <AntDesign name="heart" size={28} color="#FF6B6B" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>My Quotes</Text>
           <TouchableOpacity onPress={logout}>
-            <Ionicons name="log-out-outline" size={28} color="#EAEAEA" />
+            <Ionicons name="log-out-outline" size={28} color="#37474F" />
           </TouchableOpacity>
         </View>
 
+        {/* QUOTE BOX */}
         <PanGestureHandler onHandlerStateChange={onGestureEvent}>
           <View style={styles.quoteBox}>
             <Text style={styles.quoteLogo}>“</Text>
@@ -177,9 +176,9 @@ export default function Quotes() {
               style={{ alignSelf: "center", marginTop: 15 }}
             >
               <AntDesign
-                name={hearted[currentIndex] ? "heart" : "hearto"}
+                name="heart"
                 size={28}
-                color={hearted[currentIndex] ? "#FF6B6B" : "#EAEAEA"}
+                color={hearted[currentIndex] ? "#FF6B6B" : "#ece2e2ff"} // red if liked, white if not
               />
             </TouchableOpacity>
           </View>
@@ -190,7 +189,7 @@ export default function Quotes() {
           value={input}
           onChangeText={setInput}
           placeholder="Add your own quote"
-          placeholderTextColor="#aaa"
+          placeholderTextColor="#A0A8B0"
         />
         <TouchableOpacity style={styles.addButton} onPress={addQuote}>
           <Text style={styles.addButtonText}>Add Quote</Text>
@@ -212,7 +211,7 @@ export default function Quotes() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0D1B2A", // deep navy
+    backgroundColor: "#F0F4F8",
     alignItems: "center",
     padding: 20,
   },
@@ -225,7 +224,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   headerTitle: {
-    color: "#EAEAEA",
+    color: "#37474F",
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -234,61 +233,66 @@ const styles = StyleSheet.create({
     minHeight: 200,
     padding: 20,
     borderRadius: 15,
-    backgroundColor: "#1B263B", // dark navy box
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     marginBottom: 20,
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 6,
   },
   quoteLogo: {
     fontSize: 50,
-    color: "#00C9A7", // cyan accent
+    color: "#3AAFA9",
     position: "absolute",
     top: 15,
     left: 15,
   },
   quoteText: {
-    fontSize: 28,
-    color: "#EAEAEA",
+    fontSize: 20,
+    color: "#37474F",
     textAlign: "center",
     fontFamily: "Cardo",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#2C2C2C",
-    backgroundColor: "#1B263B",
-    color: "#EAEAEA",
-    borderRadius: 10,
-    padding: 10,
+    borderColor: "#B0BEC5",
+    backgroundColor: "#FFFFFF",
+    color: "#37474F",
+    borderRadius: 12,
+    padding: 12,
     width: "100%",
     marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
   },
   addButton: {
-    backgroundColor: "#00C9A7", // cyan accent
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: "#3AAFA9",
+    padding: 14,
+    borderRadius: 12,
     marginBottom: 10,
     width: "100%",
     alignItems: "center",
   },
   addButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
+    fontWeight: "600",
   },
   randomButton: {
-    backgroundColor: "#FF6B6B", // coral accent
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: "#FF6B6B",
+    padding: 14,
+    borderRadius: 12,
     marginBottom: 10,
     width: "100%",
     alignItems: "center",
   },
   randomButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
+    fontWeight: "600",
   },
 });

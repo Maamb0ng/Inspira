@@ -37,7 +37,7 @@ export default function LandingPage() {
   const arrowOffset = useSharedValue(0);
   useEffect(() => {
     arrowOffset.value = withRepeat(
-      withSequence(withSpring(-10), withSpring(0)),
+      withSequence(withSpring(-15, { damping: 5, stiffness: 120 }), withSpring(0, { damping: 5, stiffness: 120 })),
       -1,
       true
     );
@@ -56,27 +56,22 @@ export default function LandingPage() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <GestureDetector gesture={swipeGesture}>
         <Animated.View style={[styles.container, contentStyle]}>
-          {/* Gradient background (deep navy tones) */}
           <LinearGradient
-            colors={["#0D1B2A", "#1B263B", "#0D1B2A"]}
+            colors={["#E0F7FA", "#FFFFFF", "#E0F7FA"]}
             style={StyleSheet.absoluteFill}
           />
 
-          {/* Centered content */}
           <View style={styles.center}>
             <View style={styles.titleRow}>
               <Text style={styles.headline}>Inspira </Text>
-              <FontAwesome name="quote-left" size={36} color="#1B9AAA" />
+              <FontAwesome name="quote-left" size={36} color="#3AAFA9" />
             </View>
-            <Text style={styles.subheadline}>
-              Swipe up to get inspired 🌟
-            </Text>
+            <Text style={styles.subheadline}>Swipe up to get inspired 🌟</Text>
           </View>
 
-          {/* Bottom arrow & text */}
           <View style={styles.bottom}>
-            <Animated.View style={arrowStyle}>
-              <FontAwesome name="angle-up" size={40} color="#1B9AAA" />
+            <Animated.View style={[arrowStyle, styles.arrowShadow]}>
+              <FontAwesome name="angle-up" size={40} color="#3AAFA9" />
             </Animated.View>
             <Text style={styles.swipeText}>Swipe up to get started</Text>
           </View>
@@ -98,19 +93,25 @@ const styles = StyleSheet.create({
   headline: {
     fontSize: 36,
     fontWeight: "bold",
-    fontStyle: "italic", // italic + bold
-    color: "#1B9AAA", // cyan highlight (same as login title)
+    fontStyle: "italic",
+    color: "#3AAFA9",
   },
   subheadline: {
     fontSize: 18,
-    color: "#FF6B6B", // coral accent (same as login subtitle)
+    color: "#FF7F50",
     textAlign: "center",
     marginTop: 10,
   },
   bottom: { alignItems: "center", marginBottom: 20 },
   swipeText: {
     fontSize: 14,
-    color: "#1B9AAA", // cyan for harmony with buttons/icons
+    color: "#3AAFA9",
     marginTop: 5,
+  },
+  arrowShadow: {
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
   },
 });

@@ -17,8 +17,9 @@ import {
   TouchableOpacity,
   View,
   Image,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // for back button
+} from "react-native"; // <-- make sure StyleSheet is imported here
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient"; // Needed for gradient buttons
 import { auth } from "../firebaseConfig";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -27,14 +28,14 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [focusedInput, setFocusedInput] = useState(null);
 
-  // --- GOOGLE AUTH ---
   const [googleRequest, googleResponse, promptGoogleSignIn] =
     Google.useAuthRequest({
       expoClientId: "<YOUR_EXPO_GOOGLE_CLIENT_ID>",
       iosClientId: "<YOUR_IOS_GOOGLE_CLIENT_ID>",
       androidClientId: "<YOUR_ANDROID_GOOGLE_CLIENT_ID>",
-      webClientId: "<YOUR_WEB_GOOGLE_CLIENT_ID>", // Firebase Web client ID
+      webClientId: "<YOUR_WEB_GOOGLE_CLIENT_ID>",
     });
 
   useEffect(() => {
@@ -47,11 +48,8 @@ export default function LoginScreen() {
     }
   }, [googleResponse]);
 
-  // --- FACEBOOK AUTH ---
   const [fbRequest, fbResponse, promptFacebookSignIn] =
-    Facebook.useAuthRequest({
-      clientId: "25276549398595080",
-    });
+    Facebook.useAuthRequest({ clientId: "25276549398595080" });
 
   useEffect(() => {
     if (fbResponse?.type === "success") {
@@ -63,7 +61,6 @@ export default function LoginScreen() {
     }
   }, [fbResponse]);
 
-  // --- EMAIL LOGIN ---
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -75,51 +72,53 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={() => router.push("/")} // go to index.js
-      >
-        <Ionicons name="arrow-back" size={26} color="#FFF" />
+      <TouchableOpacity style={styles.backBtn} onPress={() => router.push("/")}>
+        <Ionicons name="arrow-back" size={26} color="#3AAFA9" />
       </TouchableOpacity>
 
       <Text style={styles.title}>Welcome Back 👋</Text>
       <Text style={styles.subtitle}>Login to see quotes</Text>
 
       <View style={styles.form}>
-        <Text style={styles.label}>E-mail</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, focusedInput === "email" && styles.inputFocused]}
           value={email}
           onChangeText={setEmail}
-          placeholder="Enter email"
-          placeholderTextColor="#88A2B0"
+          placeholder="Email"
+          placeholderTextColor="#A0A8B0"
           keyboardType="email-address"
           autoCapitalize="none"
+          onFocus={() => setFocusedInput("email")}
+          onBlur={() => setFocusedInput(null)}
         />
-
-        <Text style={styles.label}>Password</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            focusedInput === "password" && styles.inputFocused,
+          ]}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
-          placeholder="Enter password"
-          placeholderTextColor="#88A2B0"
+          placeholder="Password"
+          placeholderTextColor="#A0A8B0"
+          onFocus={() => setFocusedInput("password")}
+          onBlur={() => setFocusedInput(null)}
         />
 
         <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-          <Text style={styles.loginText}>Login</Text>
+          <LinearGradient
+            colors={["#3AAFA9", "#2B9C92"]}
+            style={styles.loginBtnGradient}
+          >
+            <Text style={styles.loginText}>Login</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
-        {/* Divider text */}
         <Text style={styles.orText}>Or continue with</Text>
 
-        {/* SOCIAL ICONS ROW */}
         <View style={styles.socialRow}>
-          {/* GOOGLE SIGN IN */}
           <TouchableOpacity
-            style={[styles.socialCircle, { backgroundColor: "#DB4437" }]}
+            style={[styles.socialCircle, { backgroundColor: "#F4B400" }]}
             disabled={!googleRequest}
             onPress={() => promptGoogleSignIn()}
           >
@@ -128,8 +127,6 @@ export default function LoginScreen() {
               style={styles.circleIcon}
             />
           </TouchableOpacity>
-
-          {/* FACEBOOK SIGN IN */}
           <TouchableOpacity
             style={[styles.socialCircle, { backgroundColor: "#1877F2" }]}
             disabled={!fbRequest}
@@ -142,9 +139,8 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* SIGN UP LINK */}
         <View style={styles.signupRow}>
-          <Text style={{ color: "#88A2B0" }}>Don’t have an account?</Text>
+          <Text style={{ color: "#A0A8B0" }}>Don’t have an account?</Text>
           <TouchableOpacity onPress={() => router.push("register")}>
             <Text style={styles.signupText}> Sign up</Text>
           </TouchableOpacity>
@@ -157,82 +153,65 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0D1B2A", // Deep navy
-    padding: 20,
-    paddingTop: 60,
+    backgroundColor: "#F0F4F8",
+    padding: 25,
+    paddingTop: 80,
   },
   backBtn: {
-    marginBottom: 20,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "rgba(58,175,169,0.1)",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1B9AAA", // Cyan highlight
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#FF6B6B", // Coral accent
-    marginBottom: 40,
-  },
-  form: { marginTop: 10 },
-  label: { fontSize: 14, color: "#E0E0E0", marginBottom: 5 },
+  title: { fontSize: 30, fontWeight: "bold", color: "#3AAFA9", marginBottom: 5 },
+  subtitle: { fontSize: 16, color: "#FF7F50", marginBottom: 35 },
+  form: {},
   input: {
     borderWidth: 1,
-    borderColor: "#1B9AAA",
-    backgroundColor: "#1A2634",
-    color: "#FFF",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 15,
+    borderColor: "#B0BEC5",
+    backgroundColor: "#FFFFFF",
+    color: "#37474F",
+    padding: 14,
+    borderRadius: 14,
+    marginBottom: 18,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
   },
+  inputFocused: { borderColor: "#3AAFA9", shadowOpacity: 0.15 },
   loginBtn: {
-    backgroundColor: "#1B9AAA", // Cyan primary
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 20,
+    borderRadius: 16,
+    marginTop: 10,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
   },
-  loginText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
-    fontWeight: "600",
+  loginBtnGradient: {
+    padding: 16,
+    alignItems: "center",
+    borderRadius: 16,
   },
-  orText: {
-    textAlign: "center",
-    color: "#AAAAAA",
-    marginTop: 25,
-    marginBottom: 10,
-    fontSize: 14,
-  },
-  socialRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 5,
-    gap: 20, // spacing between icons
-  },
+  loginText: { color: "#FFFFFF", fontSize: 16, fontWeight: "600" },
+  orText: { textAlign: "center", color: "#90A4AE", marginVertical: 20, fontSize: 14 },
+  socialRow: { flexDirection: "row", justifyContent: "center", gap: 20, marginVertical: 10 },
   socialCircle: {
     width: 60,
     height: 60,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
-  circleIcon: {
-    width: 28,
-    height: 28,
-    resizeMode: "contain",
-  },
-  signupRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 25,
-  },
-  signupText: { color: "#1B9AAA", fontWeight: "600" },
+  circleIcon: { width: 28, height: 28, resizeMode: "contain" },
+  signupRow: { flexDirection: "row", justifyContent: "center", marginTop: 30 },
+  signupText: { color: "#3AAFA9", fontWeight: "600" },
 });
