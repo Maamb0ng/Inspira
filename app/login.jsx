@@ -50,7 +50,7 @@ export default function LoginScreen() {
   // --- FACEBOOK AUTH ---
   const [fbRequest, fbResponse, promptFacebookSignIn] =
     Facebook.useAuthRequest({
-      clientId: "<YOUR_FACEBOOK_APP_ID>",
+      clientId: "25276549398595080",
     });
 
   useEffect(() => {

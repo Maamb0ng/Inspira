@@ -65,7 +65,7 @@ export default function LandingPage() {
           {/* Centered content */}
           <View style={styles.center}>
             <View style={styles.titleRow}>
-              <Text style={styles.headline}>Random Quotes </Text>
+              <Text style={styles.headline}>Inspira </Text>
               <FontAwesome name="quote-left" size={36} color="#1B9AAA" />
             </View>
             <Text style={styles.subheadline}>

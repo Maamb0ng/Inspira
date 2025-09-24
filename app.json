@@ -41,6 +41,9 @@
       ],
       "expo-font"
     ],
+    "facebookScheme": "facebookAppId",
+    "facebookAppId": "25276549398595080",
+    "facebookDisplayName": "Inspira",
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
